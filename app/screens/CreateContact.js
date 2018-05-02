@@ -8,7 +8,8 @@ import React, { Component } from 'react';
 import {
   Platform,
   StyleSheet,
-  View
+  View,
+  ActivityIndicator
 } from 'react-native';
 import { Item, Form, Input, Button, Text } from 'native-base';
 import { connect } from 'react-redux';
@@ -32,16 +33,31 @@ class CreateContact extends Component<Props> {
   }
 
   handleSave = () => {
-    this.props.dispatch(createContact(this.state));
-    this.props.dispatch({
-      type: 'Navigation/BACK'
+    this.props.dispatch(createContact(this.state))
+    .then( res => {
+      this.props.dispatch({
+        type: 'Navigation/BACK'
+      })
+    })
+    .catch( err => {
+      alert('Error Cuyy')
     })
   }
 
   handleUpdate = () => {
-    this.props.dispatch(updateContact(this.state));
-    this.props.dispatch({
-      type: 'Navigation/BACK'
+    const { params } = this.props.navigation.state;
+    const newValue = {
+      ...params,
+      ...this.state
+    }
+    this.props.dispatch(updateContact(newValue))
+    .then( res => {
+      this.props.dispatch({
+        type: 'Navigation/BACK'
+      })
+    })
+    .catch( err => {
+      alert('Error Cuyy')
     })
   }
 
@@ -56,7 +72,7 @@ class CreateContact extends Component<Props> {
             <Input value={this.state.number} onChangeText={(text) => this.setState({number: text})} placeholder="Number" />
           </Item>
           <Button  onPress={this.props.navigation.state.params && this.props.navigation.state.params.name ? this.handleUpdate : this.handleSave} style={styles.button} full dark>
-            <Text>Save</Text>
+            {this.props.contactsReducer.isLoading ? <ActivityIndicator color="#ffffff" /> : <Text>Save</Text>}
           </Button>
         </Form>
       </View>
@@ -64,7 +80,13 @@ class CreateContact extends Component<Props> {
   }
 }
 
-export default connect()(CreateContact)
+const mapStateToProps = (state) => {
+  return {
+    contactsReducer: state.contactsReducer
+  }
+}
+
+export default connect(mapStateToProps)(CreateContact)
 
 const styles = StyleSheet.create({
   container: {

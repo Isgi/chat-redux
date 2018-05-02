@@ -9,23 +9,24 @@ import {
   Platform,
   StyleSheet,
   View,
-  FlatList
+  FlatList,
+  Alert
 } from 'react-native';
 import { connect } from 'react-redux';
 import { ListItem, Left, Body, Right, Thumbnail, Text, Icon, Fab } from 'native-base';
 
-import { allContacts, deleteContact } from '../actions/contacts';
+import { allContacts, deleteContact, deleteContactLocal } from '../actions/contacts';
 
 type Props = {};
 class Contacts extends Component<Props> {
 
-  // state = {selected: (new Map(): Map<string, boolean>)};
+  state = {selected: (new Map(): Map<string, boolean>)};
 
   componentDidMount() {
-    this.props.dispatch(allContacts())
+    this.handleLoad()
   }
 
-  // _keyExtractor = (item, index) => item.name;
+  _keyExtractor = (item, index) => item.objectId;
 
   handleEdit = (item) => {
     this.props.dispatch({
@@ -36,10 +37,27 @@ class Contacts extends Component<Props> {
   }
 
   handleDelete = (item) => {
-    this.props.dispatch(deleteContact(item))
+    Alert.alert(
+      '',
+      'Yakin didelet?',
+      [
+        {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+        {text: 'OK', onPress: () => {
+          this.props.dispatch(deleteContact(item))
+          .then(() => {
+            this.props.dispatch(deleteContactLocal(item))
+          })
+        }},
+      ],
+      { cancelable: true }
+    )
   }
 
-  _renderItem = (item) => {
+  handleLoad = () => {
+    this.props.dispatch(allContacts())
+  }
+
+  _renderItem = ({item, index}) => {
     return (
       <ListItem
         key={item.name}
@@ -69,13 +87,15 @@ class Contacts extends Component<Props> {
   render() {
     return (
       <View style={styles.container}>
-        {this.props.contactsReducer.contacts.map(contact => this._renderItem(contact))}
-        {/* <FlatList
+        <Text style={styles.note} note>Long press for delete item, press for edit item</Text>
+        <FlatList
           data={this.props.contactsReducer.contacts}
           extraData={this.state}
           keyExtractor={this._keyExtractor}
           renderItem={this._renderItem}
-        /> */}
+          onRefresh={this.handleLoad}
+          refreshing={this.props.contactsReducer.isLoading}
+        />
         <Fab
           style={{ backgroundColor: '#000000' }}
           position="bottomRight"
@@ -99,5 +119,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F5FCFF',
+  },
+  note: {
+    margin: 10,
+    alignSelf: 'center',
+    textAlign: 'center'
   }
 });

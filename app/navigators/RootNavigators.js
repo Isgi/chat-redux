@@ -11,21 +11,21 @@ import CreateContact from '../screens/CreateContact';
 
 //default key for bellow is Main
 const Main = TabNavigator({
-  Chats: { //just as a routeName not a key
-    screen: Chats,
-    navigationOptions: {
-      title: 'Chats',
-      tabBarIcon: ({focused, tintColor}) => {
-        return <Icon name="ios-chatbubbles" style={{color: focused ? tintColor : '#bebebe'}} />
-      }
-    }
-  },
-  Contacts: {
+  Contacts: { //just as a routeName not a key
     screen: Contacts,
     navigationOptions: {
       title: 'Contacts',
       tabBarIcon: ({focused, tintColor}) => {
         return <Icon name="ios-contact" style={{color: focused ? tintColor : '#bebebe'}} />
+      }
+    }
+  },
+  Chats: {
+    screen: Chats,
+    navigationOptions: {
+      title: 'Chats',
+      tabBarIcon: ({focused, tintColor}) => {
+        return <Icon name="ios-chatbubbles" style={{color: focused ? tintColor : '#bebebe'}} />
       }
     }
   },
